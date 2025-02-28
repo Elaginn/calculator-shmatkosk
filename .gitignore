@@ -1,4 +1,4 @@
-*.o
-*.exe
-*.out
-*.log
+build/
+app.exe
+unit-tests.exe
+googletest/
