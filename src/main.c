@@ -31,8 +31,8 @@ void pushValue(Stack *stack, double value) {
     stack->values[++(stack->valueTop)] = value;
 }
 
-void pushOperator(Stack *stack, char operator) {
-    stack->operators[++(stack->operatorTop)] = operator;
+void pushOperator(Stack *stack, char op) {
+    stack->operators[++(stack->operatorTop)] = op;
 }
 
 double popValue(Stack *stack) {
@@ -43,14 +43,14 @@ char popOperator(Stack *stack) {
     return stack->operators[(stack->operatorTop)--];
 }
 
-int precedence(char operator) {
-    if (operator == '+' || operator == '-') return 1;
-    if (operator == '*' || operator == '/') return 2;
+int precedence(char op) {
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
     return 0;
 }
 
-double applyOperator(double a, double b, char operator) {
-    switch (operator) {
+double applyOperator(double a, double b, char op) {
+    switch (op) {
         case '+': return a + b;
         case '-': return a - b;
         case '*': return a * b;
@@ -60,6 +60,7 @@ double applyOperator(double a, double b, char operator) {
 }
 
 double evaluateExpression(const char* expression) {
+    printf("Processing expression: %s\n", expression);
     Stack stack;
     initStack(&stack);
     int i = 0;
@@ -68,13 +69,15 @@ double evaluateExpression(const char* expression) {
             i++;
             continue;
         }
-        if (isdigit(expression[i])) {
+        if (isdigit(expression[i]) || (float_mode && expression[i] == '.')) {
             double value = 0;
+            printf("Reading character: %c\n", expression[i]);
             while (isdigit(expression[i]) || (float_mode && expression[i] == '.')) {
                 if (expression[i] == '.') {
                     i++;
                     double fraction = 0.1;
                     while (isdigit(expression[i])) {
+                        printf("Processing fraction: %c\n", expression[i]);
                         value += (expression[i] - '0') * fraction;
                         fraction /= 10;
                         i++;
@@ -84,6 +87,7 @@ double evaluateExpression(const char* expression) {
                 value = value * 10 + (expression[i] - '0');
                 i++;
             }
+            printf("Parsed number: %f\n", value);
             pushValue(&stack, value);
         } else if (expression[i] == '(') {
             pushOperator(&stack, expression[i]);
@@ -93,15 +97,18 @@ double evaluateExpression(const char* expression) {
                 double b = popValue(&stack);
                 double a = popValue(&stack);
                 char op = popOperator(&stack);
+                printf("Applying operator: %c with values %f and %f\n", op, a, b);
                 pushValue(&stack, applyOperator(a, b, op));
             }
             popOperator(&stack);
             i++;
         } else if (strchr("+-*/", expression[i])) {
+            printf("Checking operator: %c\n", expression[i]);
             while (stack.operatorTop >= 0 && precedence(stack.operators[stack.operatorTop]) >= precedence(expression[i])) {
                 double b = popValue(&stack);
                 double a = popValue(&stack);
                 char op = popOperator(&stack);
+                printf("Applying operator: %c with values %f and %f\n", op, a, b);
                 pushValue(&stack, applyOperator(a, b, op));
             }
             pushOperator(&stack, expression[i]);
@@ -112,6 +119,7 @@ double evaluateExpression(const char* expression) {
         double b = popValue(&stack);
         double a = popValue(&stack);
         char op = popOperator(&stack);
+        printf("Final applying operator: %c with values %f and %f\n", op, a, b);
         pushValue(&stack, applyOperator(a, b, op));
     }
     return popValue(&stack);
@@ -125,9 +133,10 @@ int main(int argc, char *argv[]) {
 
     double result = evaluateExpression(expression);
     if (float_mode) {
-        printf("%lf\n", result);
+        printf("Final result (float mode): %lf\n", result);
     } else {
-        printf("%d\n", (int)result);
+        printf("Final result (int mode): %d\n", (int)result);
     }
     return 0;
 }
+

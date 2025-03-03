@@ -2,6 +2,10 @@
 extern "C" {
 #include "../../src/main.c"
 }
+#include <iostream>
+std::cout << "Starting test..." << std::endl;
+EXPECT_EQ(evaluateExpression("2+2"), 4);
+std::cout << "Test passed!" << std::endl;
 
 TEST(CalculatorTest, IntegerAddition) {
     EXPECT_EQ(evaluateExpression("2+2"), 4);
