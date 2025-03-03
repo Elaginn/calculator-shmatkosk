@@ -1,4 +1,6 @@
 build/
-app.exe
-unit-tests.exe
+*.exe
+*.o
+*.out
+venv/
 googletest/
