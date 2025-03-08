@@ -3,7 +3,7 @@
 
 int float_mode = 0;
 
-void parse_args(int argc, char* argv[]) {
+void parse_args(int argc, char *argv[]) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--float") == 0) {
             float_mode = 1;
@@ -11,47 +11,40 @@ void parse_args(int argc, char* argv[]) {
     }
 }
 
-void initStack(Stack* stack) {
+void initStack(Stack *stack) {
     stack->valueTop = -1;
     stack->operatorTop = -1;
 }
 
-void pushValue(Stack* stack, double value) {
+void pushValue(Stack *stack, double value) {
     stack->values[++(stack->valueTop)] = value;
 }
 
-void pushOperator(Stack* stack, char op) {
+void pushOperator(Stack *stack, char op) {
     stack->operators[++(stack->operatorTop)] = op;
 }
 
-double popValue(Stack* stack) {
+double popValue(Stack *stack) {
     return stack->values[(stack->valueTop)--];
 }
 
-char popOperator(Stack* stack) {
+char popOperator(Stack *stack) {
     return stack->operators[(stack->operatorTop)--];
 }
 
 int precedence(char op) {
-    if (op == '+' || op == '-')
-        return 1;
-    if (op == '*' || op == '/')
-        return 2;
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
     return 0;
 }
 
 double applyOperator(double a, double b, char op) {
     switch (op) {
-    case '+':
-        return a + b;
-    case '-':
-        return a - b;
-    case '*':
-        return a * b;
-    case '/':
-        return float_mode ? a / b : (int)(a / b);
-    default:
-        return 0;
+        case '+': return a + b;
+        case '-': return a - b;
+        case '*': return a * b;
+        case '/': return float_mode ? a / b : (int)(a / b);
+        default: return 0;
     }
 }
 
@@ -94,8 +87,7 @@ double evaluateExpression(const char* expression) {
             popOperator(&stack);
             i++;
         } else if (strchr("+-*/", expression[i])) {
-            while (stack.operatorTop >= 0
-                && precedence(stack.operators[stack.operatorTop]) >= precedence(expression[i])) {
+            while (stack.operatorTop >= 0 && precedence(stack.operators[stack.operatorTop]) >= precedence(expression[i])) {
                 double b = popValue(&stack);
                 double a = popValue(&stack);
                 char op = popOperator(&stack);
@@ -113,3 +105,4 @@ double evaluateExpression(const char* expression) {
     }
     return popValue(&stack);
 }
+
